@@ -1,9 +1,10 @@
 use actix_web::dev::Server;
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, web};
+use std::net::TcpListener;
 
 // pub async fn run() -> std::io::Result<()> {
 // 注意这里删除了async, 也没有await了
-pub fn run() -> Result<Server, std::io::Error> {
+pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
     let server = HttpServer::new(|| {
         App::new()
             .route("/health_check", web::get().to(health_check))
@@ -11,7 +12,7 @@ pub fn run() -> Result<Server, std::io::Error> {
             // 这个要么删除，要么放到最后，因为App会遍历所有注册的端点，放在前面会被优先匹配
             .route("/{name}", web::get().to(greet))
     })
-    .bind("127.0.0.1:8000")?
+    .listen(listener)?
     .run();
 
     Ok(server)
